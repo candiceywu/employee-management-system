@@ -9,15 +9,14 @@ USE company_db;
 
 --- create departments database ---
 CREATE TABLE departments (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(30) NOT NULL,
-  id INT AUTO_INCREMENT NOT NULL,
-  PRIMARY KEY (id)
 );
 
 --- create roles database ---
 CREATE TABLE roles (
   title VARCHAR(30) NOT NULL,
-  id INT AUTO_INCREMENT NOT NULL,
+  id INT NOT NULL AUTO_INCREMENT,
   department_id INT NOT NULL,
   salary DECIMAL NOT NULL,
   PRIMARY KEY (id)
@@ -27,12 +26,16 @@ CREATE TABLE roles (
 
 --- create empoloyees database ---
 CREATE TABLE employees (
-  id INT AUTO_INCREMENT NOT NULL,
+  id INT NOT NULL AUTO_INCREMENT,
   first_name VARCHAR(30) NOT NULL,
   last_name VARCHAR(30) NOT NULL,
   roles_id INT NOT NULL,
   department VARCHAR(30) NOT NULL,
-  salary DECIMAL NOT NULL,
-  manager_id INT NOT NULL,
-  PRIMARY KEY (id)
+  manager_id INT,
+  PRIMARY KEY (id),
+  FOREIGN KEY (roles_id)
+  REFERENCES roles(id),
+  FOREIGN KEY manager_id 
+  REFERENCES employees(id)
+);
  
