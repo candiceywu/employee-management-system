@@ -13,15 +13,17 @@ app.use(express.json());
 
 const db = mysql.createConnection(
     {
-      host: 'localhost',
-      // MySQL username,
-      user: 'root',
-      // TODO: Add MySQL password here
-      password: 'password',
-      database: 'company_db'
+        host: 'localhost',
+        // MySQL username,
+        user: 'root',
+        // TODO: Add MySQL password here
+        password: 'password',
+        database: 'company_db'
     },
     console.log(`Connected to the company_db database.`)
-  );
+);
+
+
 
 //function for inquirer questions
 const init = () => {
@@ -34,22 +36,22 @@ const init = () => {
                 choices: ['View all departments', 'View all roles', 'View all employees', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role', 'Exit']
             },
         ])
-        .then((responses) => {
-            if (responses.choices === 'View all departments') {
+        .then((response) => {
+            if (response.choices === 'View all departments') {
                 viewAllDepartments();
-            } else if (responses.choices === 'View all roles') {
+            } else if (response.choices === 'View all roles') {
                 viewAllRoles();
-            } else if (responses.choices === 'View all employees') {
+            } else if (response.choices === 'View all employees') {
                 viewAllEmployees();
-            } else if (responses.choices === 'Add a department') {
+            } else if (response.choices === 'Add a department') {
                 addDepartment();
-            } else if (responses.choices === 'Add a role') {
+            } else if (response.choices === 'Add a role') {
                 addRole();
-            } else if (responses.choices === 'Add an employee') {
+            } else if (response.choices === 'Add an employee') {
                 addEmployee();
-            } else if (responses.choices === 'Update an employee') {
+            } else if (response.choices === 'Update an employee') {
                 updateEmployee();
-            } else if (responses.choices === 'Exit') {
+            } else if (responses.choice === 'Exit') {
                 return;
             }
         });
@@ -59,12 +61,12 @@ const init = () => {
 //function to view all departments
 const viewAllDepartments = () => {
     db.query('SELECT id AS id, name AS department FROM departments',
-    function (err, res) {
-        if (err) {
-            console.log(err);
-        } console.table(res);
-    init();
-    })
+        function (err, res) {
+            if (err) {
+                console.log(err);
+            } console.table(res);
+            init();
+        })
 };
 
 
@@ -75,6 +77,7 @@ const viewAllRoles = () => {
             if (err) {
                 console.log(err);
             } console.table(res);
+            init();
         })
 };
 
@@ -85,46 +88,108 @@ const viewAllEmployees = () => {
             if (err) {
                 console.log(err);
             } console.table(res);
+            init();
         })
 };
 
 
 //function to add a department
 const addDepartment = () => {
-    db.query('INSERT INTO department ')
-console.log(`Department successfully added to the database.`)
-} 
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                name: 'addDepartment',
+                message: 'Enter a department name'
+            }
+        ])
+        .then((response) => {
+            let info = response.addDepartment;
+            let sql = 'INSERT INTO departments (name) VALUES ?';
+            db.query(sql, info,
+                function (err, res) {
+                    if (err) {
+                        console.log(err);
+                    } console.table(res);
+                    console.log('Department successfully added to the database.');
+                    init();
+                })
+        })
+};
 
 //function to add an employee
 const addEmployee = () => {
-    db.query('INSERT INTO employees ')
-console.log(`Employee successfully added to the database.`)
-} 
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                name: 'name',
+                message: 'Please enter employee first and last name'
+            },
+            {
+                type: 'list',
+                name: 'role',
+                message: 'Please select employee role',
+                choices: ['Researcher', 'Associate', 'Paralegal', 'Project Coordinator', 'Program Lead', 'Analyst', 'Designer']
+            }
+        ])
+        .then((response) => {
+            let info = response.name;
+            let fullname = info.split(" ");
+            console.log(fullname);
+            let sql = 'INSERT INTO employees (first_name, last_name) VALUES ?';
+            db.query(sql, fullname,
+                function (err, res) {
+                    if (err) {
+                        console.log(err);
+                    } console.table(res);
+                    console.log('Employee successfully added to the database.');
+                    init();
+                })
+        })
+};
 
 //function to add a role
 const addRole = () => {
-    db.query('INSERT INTO roles ')
-console.log(`Employee successfully added to the database.`)
-} 
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                name: 'roleTitle',
+                message: 'Enter a role title'
+            },
+            {
+                type: 'number',
+                name: 'salary',
+                message: 'Please enter a salary for this role'
+            },
+            {
+                type: 'list',
+                name: 'department',
+                message: 'Please select a department',
+                choices: ['Research and Development', 'Legal', 'Operations', 'Finance', 'Marketing']
+            },
+        ])
+        .then((response) => {
+            let info = response.addRole;
+            let sql = 'INSERT INTO roles (title) VALUES ?';
+            db.query(sql, info,
+                function (err, res) {
+                    if (err) {
+                        console.log(err);
+                    } console.table(res);
+                    console.log('Role successfully added to the database.');
+                    init();
+                })
+        })
+};
 
 //function to update an employee
-const updateEmployee = () => {
-    db.query('INSERT INTO employees ')
-console.log(`Employee successfully updated in the database.`)
-} 
+// const updateEmployee = () => {
+//     db.query('UPDATE INTO employees ')
+//     console.log(`Employee successfully updated in the database.`)
+// }
 
-//function for next steps
-const nextChoice = () => {
-    inquirer
-    .prompt ([
-        {
-            type: 'confirm',
-            name: 'next',
-            message: 'Would you like to do anything else?',
-            default: false
-        }
-    ])
-}
 
 //call the function to execute the question prompts
 init();
@@ -132,8 +197,8 @@ init();
 // Default response for any other request (Not Found)
 app.use((req, res) => {
     res.status(404).end();
-  });
-  
-  app.listen(PORT, () => {
+});
+
+app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
-  });
+});
