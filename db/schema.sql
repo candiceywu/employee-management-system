@@ -10,32 +10,29 @@ USE company_db;
 --- create departments database ---
 CREATE TABLE departments (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(30) NOT NULL,
+  name VARCHAR(30) NOT NULL
 );
 
 --- create roles database ---
 CREATE TABLE roles (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   title VARCHAR(30) NOT NULL,
-  id INT NOT NULL AUTO_INCREMENT,
-  department_id INT NOT NULL,
+  department_id INT,
   salary DECIMAL NOT NULL,
-  PRIMARY KEY (id)
   FOREIGN KEY (department_id)
-  REFERENCES departments(id)
+  REFERENCES departments(id) 
+  ON DELETE SET NULL
 );
 
 --- create empoloyees database ---
 CREATE TABLE employees (
-  id INT NOT NULL AUTO_INCREMENT,
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   first_name VARCHAR(30) NOT NULL,
   last_name VARCHAR(30) NOT NULL,
-  roles_id INT NOT NULL,
-  department VARCHAR(30) NOT NULL,
-  manager_id INT,
-  PRIMARY KEY (id),
+  roles_id INT,
   FOREIGN KEY (roles_id)
-  REFERENCES roles(id),
-  FOREIGN KEY manager_id 
+  REFERENCES roles(id) ON DELETE SET NULL,
+  manager_id INT 
   REFERENCES employees(id)
+  ON DELETE SET NULL
 );
- 
