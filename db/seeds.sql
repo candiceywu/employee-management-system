@@ -9,9 +9,9 @@ INSERT INTO roles (title, department_id, salary)
 VALUES ("Researcher", 1, 80000), 
        ("Associate", 1, 50000), 
        ("Senior Vice President", 1, 150000), 
-       ("general counsel", 2, 150000),  
-       ("Associate", 2, 50000), 
-       ("Associate", 3, 50000), 
+       ("General Counsel", 2, 150000),  
+       ("Paralegal", 2, 70000), 
+       ("Project Coordinator", 3, 50000), 
        ("Program Lead", 3, 120000), 
        ("Chief Administrative Officer", 3, 160000), 
        ("Chief Financial Officer", 4, 160000),  
@@ -25,13 +25,13 @@ VALUES  ("Jessica","Gisondo", 1, 3),
         ("Lian","Han", 3, null), 
         ("Kristy","Wu", 4, null), 
         ("Sean","Macwilliams", 5, 4), 
-        ("Sara","Kaminksy", 6,7 ), 
+        ("Sara","Kaminksy", 6, 7), 
         ("Smita","Satiani", 7, 8), 
         ("Aneesh","Chaganty", 8, null), 
         ("Dellea","Chew", 9, null), 
         ("Aneesh","Chaganty", 10, 9), 
         ("Angela","Johnson", 11, 12), 
-        ("Melissa","Kuch", 12, null)
+        ("Melissa","Kuch", 12, null);
 
 
 --- View all departments', 'View all roles', 'View all employees', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role', 'Exit'] ----

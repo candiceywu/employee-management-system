@@ -23,7 +23,8 @@ const db = mysql.createConnection(
     console.log(`Connected to the company_db database.`)
 );
 
-
+//employee array
+const employeeArray = [];
 
 //function for inquirer questions
 const init = () => {
@@ -49,8 +50,8 @@ const init = () => {
                 addRole();
             } else if (response.choices === 'Add an employee') {
                 addEmployee();
-            } else if (response.choices === 'Update an employee') {
-                updateEmployee();
+            } else if (response.choices === 'Update an employee role') {
+                updateEmployeeRole();
             } else if (responses.choice === 'Exit') {
                 return;
             }
@@ -100,18 +101,18 @@ const addDepartment = () => {
             {
                 type: 'input',
                 name: 'addDepartment',
-                message: 'Enter a department name'
+                message: 'What is the name of the department you would like to add?: '
             }
         ])
         .then((response) => {
-            let info = response.addDepartment;
-            let sql = 'INSERT INTO departments (name) VALUES ?';
-            db.query(sql, info,
+            db.query(`INSERT INTO departments SET ?`,
+            { name: response.addDepartment },
                 function (err, res) {
                     if (err) {
                         console.log(err);
-                    } console.table(res);
-                    console.log('Department successfully added to the database.');
+                    } 
+                    // console.table(res);
+                    console.log(`${response.addDepartment} successfully added to the database.`);
                     init();
                 })
         })
@@ -123,26 +124,65 @@ const addEmployee = () => {
         .prompt([
             {
                 type: 'input',
-                name: 'name',
-                message: 'Please enter employee first and last name'
+                name: 'firstName',
+                message: 'Please enter employee first name: '
+            },
+            {
+                type: 'input',
+                name: 'lastName',
+                message: 'Please enter employee last name: '
             },
             {
                 type: 'list',
                 name: 'role',
-                message: 'Please select employee role',
-                choices: ['Researcher', 'Associate', 'Paralegal', 'Project Coordinator', 'Program Lead', 'Analyst', 'Designer']
-            }
+                message: 'Please select employee role: ',
+                choices: ['']
+            },
+            {
+                type: 'list',
+                name: 'researchAndDevelopmentManager',
+                message: 'Please select the manager: ',
+                choices: ['Senior Vice President'],
+                when: (list) => list.role === ['Researcher', 'Associate']
+            },
+            {
+                type: 'list',
+                name: 'legalManager',
+                message: 'Please select the manager: ',
+                choices: ['General Counsel'],
+                when: (list) => list.role === ['Paralegal']
+            },
+            {
+                type: 'list',
+                name: 'operationsManager',
+                message: 'Please select the manager: ',
+                choices: ['Program Lead','Chief Administrative Officer'],
+                when: (list) => list.role === ['Project Coordinator', 'Program Lead']
+            },
+            {
+                type: 'list',
+                name: 'financeManager',
+                message: 'Please select the manager: ',
+                choices: ['Chief Financial Officer'],
+                when: (list) => list.role === ['Analyst']
+            },
+            {
+                type: 'list',
+                name: 'marketingManager',
+                message: 'Please select the manager: ',
+                choices: ['Chief Marketing Officer'],
+                when: (list) => list.role === ['Designer']
+            },
         ])
         .then((response) => {
-            let info = response.name;
-            let fullname = info.split(" ");
-            console.log(fullname);
-            let sql = 'INSERT INTO employees (first_name, last_name) VALUES ?';
-            db.query(sql, fullname,
+            let info = response.addEmployee;
+            let sql = `INSERT INTO employees (first_name, last_name, roles_id, manager_id) VALUES ("${response.firstName}", "${response.lastName}", "${manager_id}")`;
+            db.query(sql, info,
                 function (err, res) {
                     if (err) {
                         console.log(err);
                     } console.table(res);
+                    employeeArray.push(`${response.firstName} ${response.lastName}`);
                     console.log('Employee successfully added to the database.');
                     init();
                 })
@@ -156,39 +196,63 @@ const addRole = () => {
             {
                 type: 'input',
                 name: 'roleTitle',
-                message: 'Enter a role title'
+                message: 'What is the title of the role you would like to add?: '
             },
             {
                 type: 'number',
                 name: 'salary',
-                message: 'Please enter a salary for this role'
+                message: 'Please enter a salary for this role: ',
+                validate: validateNumber
             },
             {
                 type: 'list',
                 name: 'department',
-                message: 'Please select a department',
-                choices: ['Research and Development', 'Legal', 'Operations', 'Finance', 'Marketing']
+                message: 'Which department does this role belong to?: ',
+                choices: ['']
             },
         ])
         .then((response) => {
-            let info = response.addRole;
-            let sql = 'INSERT INTO roles (title) VALUES ?';
-            db.query(sql, info,
+            db.query(`INSERT INTO roles SET ?`,
+            { title: response.roleTitle, salary: response.salary, department_id = response.department},
                 function (err, res) {
                     if (err) {
                         console.log(err);
                     } console.table(res);
-                    console.log('Role successfully added to the database.');
+                    console.log(`${response.roleTitle} successfully added to the database.`);
                     init();
                 })
         })
 };
 
 //function to update an employee
-// const updateEmployee = () => {
-//     db.query('UPDATE INTO employees ')
-//     console.log(`Employee successfully updated in the database.`)
-// }
+const updateEmployeeRole = () => {
+    inquirer
+    .prompt ([
+        {
+            type: 'list',
+            message: 'Which employee\'s role do you want to update?',
+            name: 'currentEmployee',
+            choices: [...employeeArray]
+        },
+        {
+            type: 'list',
+            message: 'Which role do you want to assign to the selected employee?',
+            name: 'updatedRole',
+            choices: ['']
+        }
+    ])
+        .then((response) => {
+            db.query(`UPDATE employees SET ? WHERE ?`,
+            { last_name = currentEmployee, role_id = updatedRole },
+                function (err, res) {
+                    if (err) {
+                        console.log(err);
+                    } console.table(res);
+                    console.log('Employee role successfully updated in the database.');
+                    init();
+                })
+        })
+}
 
 
 //call the function to execute the question prompts
