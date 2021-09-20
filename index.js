@@ -52,7 +52,7 @@ const init = () => {
                 addEmployee();
             } else if (response.choices === 'Update an employee role') {
                 updateEmployeeRole();
-            } else if (responses.choice === 'Exit') {
+            } else if (response.choice === 'Exit') {
                 return;
             }
         });
@@ -106,11 +106,11 @@ const addDepartment = () => {
         ])
         .then((response) => {
             db.query(`INSERT INTO departments SET ?`,
-            { name: response.addDepartment },
+                { name: response.addDepartment },
                 function (err, res) {
                     if (err) {
                         console.log(err);
-                    } 
+                    }
                     // console.table(res);
                     console.log(`${response.addDepartment} successfully added to the database.`);
                     init();
@@ -156,7 +156,7 @@ const addEmployee = () => {
                 type: 'list',
                 name: 'operationsManager',
                 message: 'Please select the manager: ',
-                choices: ['Program Lead','Chief Administrative Officer'],
+                choices: ['Program Lead', 'Chief Administrative Officer'],
                 when: (list) => list.role === ['Project Coordinator', 'Program Lead']
             },
             {
@@ -191,6 +191,7 @@ const addEmployee = () => {
 
 //function to add a role
 const addRole = () => {
+    db.query(`SELECT * FROM roles`);
     inquirer
         .prompt([
             {
@@ -202,57 +203,100 @@ const addRole = () => {
                 type: 'number',
                 name: 'salary',
                 message: 'Please enter a salary for this role: ',
-                validate: validateNumber
-            },
-            {
-                type: 'list',
-                name: 'department',
-                message: 'Which department does this role belong to?: ',
-                choices: ['']
             },
         ])
+
         .then((response) => {
-            db.query(`INSERT INTO roles SET ?`,
-            { title: response.roleTitle, salary: response.salary, department_id = response.department},
-                function (err, res) {
-                    if (err) {
-                        console.log(err);
-                    } console.table(res);
-                    console.log(`${response.roleTitle} successfully added to the database.`);
-                    init();
-                })
-        })
-};
+            const defineDepartment = db.query(`SELECT * FROM departments`, (err, res) => {
+                if (err) throw err;
+                let choice = res.map(res => res.name);
+                console.log({ defineDepartment });
+                inquirer
+                    .prompt([
+                        {
+                            type: 'list',
+                            name: 'department',
+                            message: 'Which department does this role belong to?: ',
+                            choices: choice
+                        },
+                    ])
+                    .then((response) => {
+                        db.query(`UPDATE roles SET ?`,
+                            { title: response.roleTitle, salary: response.salary, department_id: response.department },
+                            function (err, res) {
+                                if (err) {
+                                    console.log(err);
+                                } console.table(res);
+                                console.log(`${response.roleTitle} successfully added to the database.`);
+                                init();
+                            })
+
+                        // const defineDepartment = db.query(`SELECT * FROM departments`, (err, res) => {
+                        //     if (err) throw err;
+                        //     let choice = res.map(res => res.name);
+                        //     console.log({ defineDepartment });
+                        //     inquirer
+                        //         .prompt([
+                        //             {
+                        //                 type: 'list',
+                        //                 name: 'department',
+                        //                 message: 'Which department does this role belong to?: ',
+                        //                 choices: choice
+                        //             },
+                        //         ])
+                        //         .then((response) => {
+                        //             db.query(`UPDATE roles SET title = ? WHERE department_id = ?`,
+                        //                 { title: response.roleTitle, salary: response.salary, department_id: response.department },
+                        //                 function (err, res) {
+                        //                     if (err) {
+                        //                         console.log(err);
+                        //                     } console.table(res);
+                        //                     console.log(`${response.roleTitle} successfully added to the database.`);
+                        //                     init();
+
+                    });
+
+            })
+        });
+
+}
+
+
+
+
 
 //function to update an employee
-const updateEmployeeRole = () => {
-    inquirer
-    .prompt ([
-        {
-            type: 'list',
-            message: 'Which employee\'s role do you want to update?',
-            name: 'currentEmployee',
-            choices: [...employeeArray]
-        },
-        {
-            type: 'list',
-            message: 'Which role do you want to assign to the selected employee?',
-            name: 'updatedRole',
-            choices: ['']
-        }
-    ])
-        .then((response) => {
-            db.query(`UPDATE employees SET ? WHERE ?`,
-            { last_name = currentEmployee, role_id = updatedRole },
-                function (err, res) {
-                    if (err) {
-                        console.log(err);
-                    } console.table(res);
-                    console.log('Employee role successfully updated in the database.');
-                    init();
-                })
-        })
-}
+// const updateEmployeeRole = async () => {
+//     const employees = await db.query(`SELECT * FROM employees`);
+//     console.log( { employees });
+//     const employee = await
+//     inquirer
+//     .prompt ([
+//         {
+//             type: 'list',
+//             message: 'Which employee\'s role do you want to update?',
+//             name: 'currentEmployee',
+//             choices: employees.map (employee => `${employee.first_name} ${employee.last_name}`),
+//         },
+//         {
+//             type: 'list',
+//             message: 'Which role do you want to assign to the selected employee?',
+//             name: 'updatedRole',
+//             choices: ['']
+//         }
+//     ])
+//         .then((response) => {
+//             db.query(`UPDATE employees SET ? WHERE ?`,
+//             { last_name = response.currentEmployee, role_id = response.updatedRole },
+//                 function (err, res) {
+//                     if (err) {
+//                         console.log(err);
+//                     } console.table(res);
+//                     console.log('Employee role successfully updated in the database.');
+//                     init();
+//                 })
+//         })
+// }
 
 
 //call the function to execute the question prompts
@@ -266,3 +310,6 @@ app.use((req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+
+
