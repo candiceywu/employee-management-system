@@ -20,8 +20,8 @@ VALUES ("Researcher", 1, 80000),
        ("Chief Marketing Officer", 5, 160000);
 
 INSERT INTO employees (first_name, last_name, roles_id, manager_id)
-VALUES  ("Jessica","Gisondo", 1, 3), 
-        ("Alanna","Gisondo", 2, 3), 
+VALUES  ("Jessica","Gisondo", 1, null),
+        ("Alanna","Gisondo", 2, 1), 
         ("Lian","Han", 3, null), 
         ("Kristy","Wu", 4, null), 
         ("Sean","Macwilliams", 5, 4), 
@@ -31,7 +31,8 @@ VALUES  ("Jessica","Gisondo", 1, 3),
         ("Dellea","Chew", 9, null), 
         ("Aneesh","Chaganty", 10, 9), 
         ("Angela","Johnson", 11, 12), 
-        ("Melissa","Kuch", 12, null);
+        ("Melissa","Kuch", 12, null); 
+        
 
 
 --- View all departments', 'View all roles', 'View all employees', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role', 'Exit'] ----

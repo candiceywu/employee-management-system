@@ -2,7 +2,7 @@ const cTable = require('console.table');
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
 const express = require('express');
-
+let someVar = ""
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -23,8 +23,7 @@ const db = mysql.createConnection(
     console.log(`Connected to the company_db database.`)
 );
 
-//employee array
-const employeeArray = [];
+
 
 //function for inquirer questions
 const init = () => {
@@ -120,83 +119,93 @@ const addDepartment = () => {
 
 //function to add an employee
 const addEmployee = () => {
-    inquirer
-        .prompt([
-            {
-                type: 'input',
-                name: 'firstName',
-                message: 'Please enter employee first name: '
-            },
-            {
-                type: 'input',
-                name: 'lastName',
-                message: 'Please enter employee last name: '
-            },
-            {
-                type: 'list',
-                name: 'role',
-                message: 'Please select employee role: ',
-                choices: ['']
-            },
-            {
-                type: 'list',
-                name: 'researchAndDevelopmentManager',
-                message: 'Please select the manager: ',
-                choices: ['Senior Vice President'],
-                when: (list) => list.role === ['Researcher', 'Associate']
-            },
-            {
-                type: 'list',
-                name: 'legalManager',
-                message: 'Please select the manager: ',
-                choices: ['General Counsel'],
-                when: (list) => list.role === ['Paralegal']
-            },
-            {
-                type: 'list',
-                name: 'operationsManager',
-                message: 'Please select the manager: ',
-                choices: ['Program Lead', 'Chief Administrative Officer'],
-                when: (list) => list.role === ['Project Coordinator', 'Program Lead']
-            },
-            {
-                type: 'list',
-                name: 'financeManager',
-                message: 'Please select the manager: ',
-                choices: ['Chief Financial Officer'],
-                when: (list) => list.role === ['Analyst']
-            },
-            {
-                type: 'list',
-                name: 'marketingManager',
-                message: 'Please select the manager: ',
-                choices: ['Chief Marketing Officer'],
-                when: (list) => list.role === ['Designer']
-            },
-        ])
-        .then((response) => {
-            let info = response.addEmployee;
-            let sql = `INSERT INTO employees (first_name, last_name, roles_id, manager_id) VALUES ("${response.firstName}", "${response.lastName}", "${manager_id}")`;
-            db.query(sql, info,
-                function (err, res) {
-                    if (err) {
-                        console.log(err);
-                    } console.table(res);
-                    employeeArray.push(`${response.firstName} ${response.lastName}`);
-                    console.log('Employee successfully added to the database.');
-                    init();
+    db.query(`SELECT * FROM roles`, (err, res) => {
+        if (err) throw err;
+        inquirer
+            .prompt([
+                {
+                    type: 'input',
+                    name: 'firstName',
+                    message: 'Please enter employee first name: '
+                },
+                {
+                    type: 'input',
+                    name: 'lastName',
+                    message: 'Please enter employee last name: '
+                },
+                {
+                    type: 'list',
+                    name: 'role',
+                    message: 'Please select employee role: ',
+                    choices() {
+                        const roleArray = [];
+                        res.forEach(({ title }) => {
+                            roleArray.push(title)
+                        });
+                        return roleArray;
+                    }
+                },
+            ])
+            .then((response) => {
+                db.query(`SELECT id FROM roles WHERE title=?`, response.role, (err, result) => {
+                    if (err) { throw err; } else {
+                        const userAnswer = JSON.stringify(result[0].id)
+                        db.query(`SELECT * FROM employees`, (err, res) => {
+                            if (err) throw err;
+                            inquirer
+                                .prompt([
+                                    {
+                                        type: 'list',
+                                        name: 'manager',
+                                        message: 'Please select the manager',
+                                        choices() {
+                                            const managerArray = ['No manager'];
+                                            res.forEach(({ first_name, last_name }) => {
+                                                managerArray.push(`${first_name} ${last_name}`)
+                                            });
+                                            return managerArray;
+                                        }
+                                    }
+                                ])
+                                .then((answer) => {
+                                    db.query(`SELECT id FROM employees WHERE CONCAT(first_name, " ", last_name)=?`, answer.manager, (err, result) => {
+                                        if (err) { throw err; } else {
+                                            if (answer.manager !== 'No manager') {
+                                                someVar = JSON.stringify(result[0].id)
+                                            } else {
+                                                console.log('manager')
+                                                someVar = null;
+                                            }
+                                    
+                                    
+                                    db.query(`INSERT INTO employees (first_name, last_name, roles_id, manager_id) VALUES (?, ?, ?, ?)`, [response.firstName, response.lastName, userAnswer, someVar], (err, res) => {
+                                        if (err) {
+                                            console.log(err);
+                                        } console.table(res);
+                                        console.log('Employee successfully added to the database.');
+                                        init();
+                                    })
+                                }
+                                    });
+                                })
+                            })
+                        }
+                    });
                 })
-        })
-};
-
-
+            })
+        }
 
 
 //function to add a role
 const addRole = () => {
+    //res is an array since select all will give an array
     db.query(`SELECT * FROM departments`, (err, res) => {
         if (err) throw err;
-        let choice = res.map(dept => ({ name: dept.name, value: dept.id }));
+        let choice = res.map(({ id, name }) => ({
+            name: name,
+            id: id
+        }))
+        // let choice = res.map(dept => ({ name: dept.name, value: dept.id }));
         inquirer
             .prompt([
                 {
@@ -217,7 +226,7 @@ const addRole = () => {
                 },
             ])
             .then((response) => {
-                db.query(`UPDATE roles SET ?`,
+                db.query(`INSERT INTO roles SET ?`,
                     { title: response.roleTitle, salary: response.salary, department_id: response.department },
                     function (err, res) {
                         if (err) {
@@ -228,7 +237,6 @@ const addRole = () => {
                     })
             });
     });
-
 }
 
 
