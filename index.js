@@ -189,87 +189,53 @@ const addEmployee = () => {
         })
 };
 
+
+
+
 //function to add a role
 const addRole = () => {
-    db.query(`SELECT * FROM roles`);
-    inquirer
-        .prompt([
-            {
-                type: 'input',
-                name: 'roleTitle',
-                message: 'What is the title of the role you would like to add?: '
-            },
-            {
-                type: 'number',
-                name: 'salary',
-                message: 'Please enter a salary for this role: ',
-            },
-        ])
-
-        .then((response) => {
-            const defineDepartment = db.query(`SELECT * FROM departments`, (err, res) => {
-                if (err) throw err;
-                let choice = res.map(res => res.name);
-                console.log({ defineDepartment });
-                inquirer
-                    .prompt([
-                        {
-                            type: 'list',
-                            name: 'department',
-                            message: 'Which department does this role belong to?: ',
-                            choices: choice
-                        },
-                    ])
-                    .then((response) => {
-                        db.query(`UPDATE roles SET ?`,
-                            { title: response.roleTitle, salary: response.salary, department_id: response.department },
-                            function (err, res) {
-                                if (err) {
-                                    console.log(err);
-                                } console.table(res);
-                                console.log(`${response.roleTitle} successfully added to the database.`);
-                                init();
-                            })
-
-                        // const defineDepartment = db.query(`SELECT * FROM departments`, (err, res) => {
-                        //     if (err) throw err;
-                        //     let choice = res.map(res => res.name);
-                        //     console.log({ defineDepartment });
-                        //     inquirer
-                        //         .prompt([
-                        //             {
-                        //                 type: 'list',
-                        //                 name: 'department',
-                        //                 message: 'Which department does this role belong to?: ',
-                        //                 choices: choice
-                        //             },
-                        //         ])
-                        //         .then((response) => {
-                        //             db.query(`UPDATE roles SET title = ? WHERE department_id = ?`,
-                        //                 { title: response.roleTitle, salary: response.salary, department_id: response.department },
-                        //                 function (err, res) {
-                        //                     if (err) {
-                        //                         console.log(err);
-                        //                     } console.table(res);
-                        //                     console.log(`${response.roleTitle} successfully added to the database.`);
-                        //                     init();
-
-                    });
-
-            })
-        });
+    db.query(`SELECT * FROM departments`, (err, res) => {
+        if (err) throw err;
+        let choice = res.map(dept => ({ name: dept.name, value: dept.id }));
+        inquirer
+            .prompt([
+                {
+                    type: 'input',
+                    name: 'roleTitle',
+                    message: 'What is the title of the role you would like to add?: '
+                },
+                {
+                    type: 'number',
+                    name: 'salary',
+                    message: 'Please enter a salary for this role: ',
+                },
+                {
+                    type: 'list',
+                    name: 'department',
+                    message: 'Which department does this role belong to?: ',
+                    choices: choice
+                },
+            ])
+            .then((response) => {
+                db.query(`UPDATE roles SET ?`,
+                    { title: response.roleTitle, salary: response.salary, department_id: response.department },
+                    function (err, res) {
+                        if (err) {
+                            console.log(err);
+                        } console.table(res);
+                        console.log(`${response.roleTitle} successfully added to the database.`);
+                        init();
+                    })
+            });
+    });
 
 }
 
 
-
-
-
-//function to update an employee
-// const updateEmployeeRole = async () => {
-//     const employees = await db.query(`SELECT * FROM employees`);
+//function to update an employee role
+// const updateEmployeeRole = () => {
+//     const employees = db.query(`SELECT * FROM employees`);
 //     console.log( { employees });
-//     const employee = await
 //     inquirer
 //     .prompt ([
 //         {
