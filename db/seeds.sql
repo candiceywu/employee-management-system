@@ -12,26 +12,26 @@ VALUES ("Researcher", 1, 80000),
        ("General Counsel", 2, 150000),  
        ("Paralegal", 2, 70000), 
        ("Project Coordinator", 3, 50000), 
-       ("Program Lead", 3, 120000), 
-       ("Chief Administrative Officer", 3, 160000), 
-       ("Chief Financial Officer", 4, 160000),  
+       ("Program Lead", 3, 120000),
+       ("Chief Administrative Officer", 3, 160000),
+       ("Chief Financial Officer", 4, 160000), 
        ("Analyst", 4, 100000), 
-       ("Designer", 5, 65000),
-       ("Chief Marketing Officer", 5, 160000);
+       ("Designer", 5, 65000), 
+       ("Chief Marketing Officer", 5, 160000); 
 
 INSERT INTO employees (first_name, last_name, roles_id, manager_id)
-VALUES  ("Jessica","Gisondo", 1, null),
-        ("Alanna","Gisondo", 2, 1), 
-        ("Lian","Han", 3, null), 
+VALUES  ("Jessica","Gisondo", 3, null),
+        ("Alanna","Gisondo", 1, 1), 
+        ("Lian","Han", 2, 1), 
         ("Kristy","Wu", 4, null), 
         ("Sean","Macwilliams", 5, 4), 
-        ("Sara","Kaminksy", 6, 7), 
-        ("Smita","Satiani", 7, 8), 
-        ("Aneesh","Chaganty", 8, null), 
+        ("Sara","Kaminksy", 8, null), 
+        ("Smita","Satiani", 7, 6), 
+        ("Aneesh","Chaganty", 6, 7), 
         ("Dellea","Chew", 9, null), 
         ("Aneesh","Chaganty", 10, 9), 
-        ("Angela","Johnson", 11, 12), 
-        ("Melissa","Kuch", 12, null); 
+        ("Angela","Johnson", 12, null), 
+        ("Melissa","Kuch", 11, 11); 
         
 
 
