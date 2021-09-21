@@ -185,7 +185,6 @@ const addEmployee = () => {
                                                     console.log(err);
                                                 } console.table(res);
                                                 console.log('Employee successfully added to the database.');
-                                                viewAllEmployees();
                                                 init();
                                             })
                                         }
@@ -204,11 +203,7 @@ const addRole = () => {
     //res is an array since select all will give an array
     db.query(`SELECT * FROM departments`, (err, res) => {
         if (err) throw err;
-        // let choice = res.map(({ id, name }) => ({
-        //     name: name,
-        //     id: id
-        // }))
-        // let choice = res.map(dept => ({ name: dept.name, value: dept.id }));
+        let choice = res.map( res => ({ value: res.id, name: res.name }))
         inquirer
             .prompt([
                 {
@@ -225,14 +220,7 @@ const addRole = () => {
                     type: 'list',
                     name: 'department',
                     message: 'Which department does this role belong to?: ',
-                    choices() {
-                        //inquirer can take in a function for its choices; need to take the array and loop through for the title that's been deconstructed and push it to the array
-                        const departmentArray = [];
-                        res.forEach(({ name }) => {
-                            departmentArray.push(name)
-                        });
-                        return departmentArray;
-                    }
+                    choices: choice
                 },
             ])
             .then((response) => {
@@ -241,9 +229,8 @@ const addRole = () => {
                     function (err, res) {
                         if (err) {
                             console.log(err);
-                        } console.table(res);
+                        } console.table(response);
                         console.log(`${response.roleTitle} successfully added to the database.`);
-                        viewAllRoles;
                         init();
                     })
             });
@@ -253,48 +240,31 @@ const addRole = () => {
 
 //function to update an employee role
 const updateEmployeeRole = () => {
-    const employees = db.query(`SELECT * FROM employees`, (err, res) => {
+    const employees = db.query(`SELECT * FROM employees JOIN roles ON roles.id = employees.id`, (err, res) => {
         if (err) throw err;
+        const name = res.map(res => ({value: res.id, name: res.first_name}));
+        const role = res.map(res => ({value: res.id, name: res.title}));
         inquirer
             .prompt([
                 {
                     type: 'list',
                     message: 'Which employee\'s role do you want to update?',
                     name: 'currentEmployee',
-                    choices()
+                    choices: name
                 },
                 {
                     type: 'list',
                     message: 'Which role do you want to assign to the selected employee?',
                     name: 'updatedRole',
-                    choices() {
-                        //inquirer can take in a function for its choices; need to take the array and loop through for the title that's been deconstructed and push it to the array
-                        const roleArray = [];
-                        res.forEach(({ title }) => {
-                            roleArray.push(title)
-                        });
-                        return roleArray;
-                    }
+                    choices: role
                 },
             ])
             .then((response) => {
-                db.query(`UPDATE employees SET ? WHERE ?`, [response.currentEmployee, response.UpdatedRole], (err, res) => {
-                    if (err) {
-                        throw err;
-                    } else {
-                        console.table(res);
-                        console.log('Employee role successsfully updated in the database.');
-                        viewAllEmployees();
-                        init();
-                    }
-                })
+                db.query(`UPDATE employees SET roles_id = ${response.updatedRole} WHERE id = ${response.currentEmployee}`);
+                init();
             })
     })
 }
-
-
-
-
 
 
 //call the function to execute the question prompts
