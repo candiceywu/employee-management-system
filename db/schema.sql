@@ -24,7 +24,7 @@ CREATE TABLE roles (
   ON DELETE SET NULL
 );
 
---- create empoloyees database ---
+--- create employees database ---
 CREATE TABLE employees (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   first_name VARCHAR(30) NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE employees (
   FOREIGN KEY (roles_id)
   REFERENCES roles(id) ON DELETE SET NULL,
   manager_id INT, 
-  CONSTRAINT fk_managers,
+  CONSTRAINT fk_managers
   FOREIGN KEY (manager_id)
   REFERENCES employees(id)
   ON DELETE SET NULL

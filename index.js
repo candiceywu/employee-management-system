@@ -112,6 +112,7 @@ const addDepartment = () => {
                     }
                     // console.table(res);
                     console.log(`${response.addDepartment} successfully added to the database.`);
+                    viewAllDepartments();
                     init();
                 })
         })
@@ -138,6 +139,7 @@ const addEmployee = () => {
                     name: 'role',
                     message: 'Please select employee role: ',
                     choices() {
+                        //inquirer can take in a function for its choices; need to take the array and loop through for the title that's been deconstructed and push it to the array
                         const roleArray = [];
                         res.forEach(({ title }) => {
                             roleArray.push(title)
@@ -147,8 +149,10 @@ const addEmployee = () => {
                 },
             ])
             .then((response) => {
+                //here, we look for where the role id matches the title
                 db.query(`SELECT id FROM roles WHERE title=?`, response.role, (err, result) => {
                     if (err) { throw err; } else {
+                        //the results returned will be an array with one object in it, which we need to stringify because query needs it to be in string format
                         const userAnswer = JSON.stringify(result[0].id)
                         db.query(`SELECT * FROM employees`, (err, res) => {
                             if (err) throw err;
@@ -176,24 +180,23 @@ const addEmployee = () => {
                                                 console.log('manager')
                                                 someVar = null;
                                             }
-                                    
-                                    
-                                    db.query(`INSERT INTO employees (first_name, last_name, roles_id, manager_id) VALUES (?, ?, ?, ?)`, [response.firstName, response.lastName, userAnswer, someVar], (err, res) => {
-                                        if (err) {
-                                            console.log(err);
-                                        } console.table(res);
-                                        console.log('Employee successfully added to the database.');
-                                        init();
-                                    })
-                                }
+                                            db.query(`INSERT INTO employees (first_name, last_name, roles_id, manager_id) VALUES (?, ?, ?, ?)`, [response.firstName, response.lastName, userAnswer, someVar], (err, res) => {
+                                                if (err) {
+                                                    console.log(err);
+                                                } console.table(res);
+                                                console.log('Employee successfully added to the database.');
+                                                viewAllEmployees();
+                                                init();
+                                            })
+                                        }
                                     });
                                 })
-                            })
-                        }
-                    });
-                })
+                        })
+                    }
+                });
             })
-        }
+    })
+}
 
 
 //function to add a role
@@ -201,10 +204,10 @@ const addRole = () => {
     //res is an array since select all will give an array
     db.query(`SELECT * FROM departments`, (err, res) => {
         if (err) throw err;
-        let choice = res.map(({ id, name }) => ({
-            name: name,
-            id: id
-        }))
+        // let choice = res.map(({ id, name }) => ({
+        //     name: name,
+        //     id: id
+        // }))
         // let choice = res.map(dept => ({ name: dept.name, value: dept.id }));
         inquirer
             .prompt([
@@ -222,7 +225,14 @@ const addRole = () => {
                     type: 'list',
                     name: 'department',
                     message: 'Which department does this role belong to?: ',
-                    choices: choice
+                    choices() {
+                        //inquirer can take in a function for its choices; need to take the array and loop through for the title that's been deconstructed and push it to the array
+                        const departmentArray = [];
+                        res.forEach(({ name }) => {
+                            departmentArray.push(name)
+                        });
+                        return departmentArray;
+                    }
                 },
             ])
             .then((response) => {
@@ -233,6 +243,7 @@ const addRole = () => {
                             console.log(err);
                         } console.table(res);
                         console.log(`${response.roleTitle} successfully added to the database.`);
+                        viewAllRoles;
                         init();
                     })
             });
@@ -241,36 +252,49 @@ const addRole = () => {
 
 
 //function to update an employee role
-// const updateEmployeeRole = () => {
-//     const employees = db.query(`SELECT * FROM employees`);
-//     console.log( { employees });
-//     inquirer
-//     .prompt ([
-//         {
-//             type: 'list',
-//             message: 'Which employee\'s role do you want to update?',
-//             name: 'currentEmployee',
-//             choices: employees.map (employee => `${employee.first_name} ${employee.last_name}`),
-//         },
-//         {
-//             type: 'list',
-//             message: 'Which role do you want to assign to the selected employee?',
-//             name: 'updatedRole',
-//             choices: ['']
-//         }
-//     ])
-//         .then((response) => {
-//             db.query(`UPDATE employees SET ? WHERE ?`,
-//             { last_name = response.currentEmployee, role_id = response.updatedRole },
-//                 function (err, res) {
-//                     if (err) {
-//                         console.log(err);
-//                     } console.table(res);
-//                     console.log('Employee role successfully updated in the database.');
-//                     init();
-//                 })
-//         })
-// }
+const updateEmployeeRole = () => {
+    const employees = db.query(`SELECT * FROM employees`, (err, res) => {
+        if (err) throw err;
+        inquirer
+            .prompt([
+                {
+                    type: 'list',
+                    message: 'Which employee\'s role do you want to update?',
+                    name: 'currentEmployee',
+                    choices()
+                },
+                {
+                    type: 'list',
+                    message: 'Which role do you want to assign to the selected employee?',
+                    name: 'updatedRole',
+                    choices() {
+                        //inquirer can take in a function for its choices; need to take the array and loop through for the title that's been deconstructed and push it to the array
+                        const roleArray = [];
+                        res.forEach(({ title }) => {
+                            roleArray.push(title)
+                        });
+                        return roleArray;
+                    }
+                },
+            ])
+            .then((response) => {
+                db.query(`UPDATE employees SET ? WHERE ?`, [response.currentEmployee, response.UpdatedRole], (err, res) => {
+                    if (err) {
+                        throw err;
+                    } else {
+                        console.table(res);
+                        console.log('Employee role successsfully updated in the database.');
+                        viewAllEmployees();
+                        init();
+                    }
+                })
+            })
+    })
+}
+
+
+
+
 
 
 //call the function to execute the question prompts
