@@ -226,7 +226,7 @@ const addRole = () => {
             .then((response) => {
                 db.query(`INSERT INTO roles SET ?`,
                     { title: response.roleTitle, salary: response.salary, department_id: response.department },
-                    function (err, res) {
+                    function (err, response) {
                         if (err) {
                             console.log(err);
                         } console.table(response);

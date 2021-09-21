@@ -14,7 +14,7 @@ This application, Employee Tracker, allows the user to use the command line to v
   - [Questions](#questions)
 
 ## Installation
-For installation, the user will use their command line (Terminal, Bash, etc.) and make sure they are accessing the correct index.js file that's being run. The user can then type in 'node index.js' or 'node index' in the command line. The command line will then begin asking the user questions that they can either use the arrow keys to select, or type directly if prompted for names and sarlary information. For this homework's requirements, the README includes a walkthrough video which can be viewed [here](LINK).
+For installation, the user will use their command line (Terminal, Bash, etc.) and make sure they are accessing the correct index.js file that's being run. The user can then type in 'node index.js' or 'node index' in the command line. The command line will then begin asking the user questions that they can either use the arrow keys to select, or type directly if prompted for names and sarlary information. For this homework's requirements, the README includes a walkthrough video which can be viewed [here](https://youtu.be/oACyvMn8-Bc).
 
 ## Usage 
 The application helps a company update, delete, or add information into a company's database in an easy and dynamic way. For example, the user can answer prompts and see their results as tables in the command line for:
